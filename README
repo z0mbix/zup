@@ -1,0 +1,1 @@
+zup is a wrapper for unison to easily sync a directory recursively with a remote host usually over ssh.

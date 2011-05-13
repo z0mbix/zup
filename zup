@@ -1,0 +1,148 @@
+#!/usr/bin/env ruby
+# 
+# Author: z0mbix (zombie@zombix.org)
+#
+# Description:
+#   zup is a wrapper for unison to easily sync a directory recursively
+#   with a remote host usually over ssh.
+#
+# Version: 0.1.1
+#
+
+require 'fileutils'
+require 'getoptlong'
+
+# Main user config file:
+$CONFIG_FILE=ENV['HOME'] + '/.zup.conf'
+# Unison command to run
+$SYNC_COMMAND="unison -logfile=.zup/zup.log -auto -times -sortnewfirst -confirmbigdel -ignore='Path .zup'"
+# Set unison directory to .zup in pwd instead of ~/.unison
+ENV['UNISON'] = '.zup'
+
+class Zup
+  def initialize
+    if ARGV.length < 1
+      output_help
+      exit 0
+    end
+  
+    # Check that config file exists
+    unless File.exist?($CONFIG_FILE)
+      puts "Config file " + $CONFIG_FILE + " does not exist!\n\n"
+      puts "Please create one with at least the following settings:\n\n"
+      puts "server=[hostname|ip]"
+      puts "remote_dir=[remote directory to sync with]"
+      exit 0
+    end
+    
+    # Import configuration from ~/.zup.conf
+    # Set some defaults
+    @conf = { 'port' => '22', 'protocol' => 'ssh', 'batch' => 'no' }
+    File.foreach($CONFIG_FILE) do |line|
+      line.strip!
+      # Skip commented and blank lines
+      if (line[0] != ?# and line =~ /\S/)
+        i = line.index('=')
+        if (i)
+          # Strip keys and convert to lowercase, and strip values
+          key = line[0..i - 1].strip.downcase
+          value = line[i + 1..-1].strip
+          @conf[key] = value
+        else
+          @conf[line.downcase] = ''
+        end
+      end
+    end
+    
+    # Enable unison's batch mode
+    # See http://www.cis.upenn.edu/~bcpierce/unison/download/releases/stable/unison-manual.html
+    # for full details
+    if @conf['batch'] == 'yes'
+      $SYNC_COMMAND = $SYNC_COMMAND + ' -batch'
+    end
+    
+    case ARGV[0]
+      when 'help'
+        output_help
+      when 'showconfig'
+        output_config
+      when 'init'
+        enable_zup_dir
+      when 'sync'
+        sync_zup_dir
+      when 'uninit'
+        disable_zup_dir
+    end  
+  end
+
+  # Output the config settings
+  def output_config
+    puts 'Using config file: ' + $CONFIG_FILE    
+    @conf.each { |key, value| puts key + " = " + value }
+  end
+
+  def output_help
+    puts "usage: zup <command>\n\n"
+    puts "Commands:"
+    puts "  help        This help output"
+    puts "  init        Initialise the current directory for sync remote sync"
+    puts "  uninit      Uninitialise the current directory for remote sync"
+    puts "  sync        Synchronise the current directory with remove host"
+    puts "  showconfig  Output the configuration settings"
+  end
+
+  # Check if the pwd is zup enabled
+  def zup_dir_enabled?
+    if File.exist?('.zup/enabled')
+      return true
+    else
+      return false
+    end
+  end
+
+  # enable the pwd so it can sync with the remote host
+  def enable_zup_dir
+    unless zup_dir_enabled?
+      puts ' * Adding current directory'
+      # Create .zup directory
+      FileUtils.mkdir('.zup') unless File.directory?('.zup')
+      # Create file to enable zup
+      File.open(".zup/enabled", 'w') { |f| f.close }
+    else
+      puts ' * Directory already initialised'
+      return false
+    end
+  end
+
+  # disable the pwd so it no-longer syncs with the remote host
+  def disable_zup_dir
+    if zup_dir_enabled?
+      puts ' * Uninitialising current directory'
+      # TODO: Fix uninitialising a directory
+      # Removing .zup directory breaks syncing if it's ever re-initialised
+      #FileUtils.rm_rf(".zup") if File.directory?('.zup')
+      FileUtils.rm('.zup/enabled')
+      exit 0
+    else
+      puts ' * Directory not initialised'
+      return false
+      exit 0
+    end
+  end
+
+  # Run unison to sync with remote host if enabled
+  def sync_zup_dir
+    if zup_dir_enabled?
+      local_dir = File.basename(Dir.pwd)
+      puts local_dir
+      puts($SYNC_COMMAND + ' . ' + @conf['protocol'] + '://' + @conf['server'] + '/' + @conf['remote_dir'] + '/' + local_dir)
+      system($SYNC_COMMAND + ' . ' + @conf['protocol'] + '://' + @conf['server'] + '/' + @conf['remote_dir'] + '/' + local_dir)
+    else
+      puts " * Current directory not initialised (Run 'zup init' to add it)"
+      exit 0
+    end
+  end
+
+end
+
+zup = Zup.new
