@@ -14,8 +14,22 @@ require 'getoptlong'
 
 # Main user config file:
 $CONFIG_FILE=ENV['HOME'] + '/.zup.conf'
+
 # Unison command to run
-$SYNC_COMMAND="unison -logfile=.zup/zup.log -auto -times -sortnewfirst -confirmbigdel -ignore='Path .zup'"
+$SYNC_COMMAND="unison \
+  -logfile=.zup/zup.log \
+  -auto \
+  -times \
+  -sortnewfirst \
+  -confirmbigdel \
+  -copyprog='rsync --inplace' \
+  -copyprogrest='rsync --partial --inplace' \
+  -contactquietly \
+  -terse \
+  -ignore='Path .zup'"
+
+#$ZUP_DEBUG=true
+
 # Set unison directory to .zup in pwd instead of ~/.unison
 ENV['UNISON'] = '.zup'
 
@@ -100,7 +114,7 @@ class Zup
     end
   end
 
-  # enable the pwd so it can sync with the remote host
+  # Enable the pwd so it can sync with the remote host
   def enable_zup_dir
     unless zup_dir_enabled?
       puts ' * Adding current directory'
@@ -114,7 +128,7 @@ class Zup
     end
   end
 
-  # disable the pwd so it no-longer syncs with the remote host
+  # Disable the pwd so it no-longer syncs with the remote host
   def disable_zup_dir
     if zup_dir_enabled?
       puts ' * Uninitialising current directory'
@@ -133,9 +147,8 @@ class Zup
   # Run unison to sync with remote host if enabled
   def sync_zup_dir
     if zup_dir_enabled?
-      local_dir = File.basename(Dir.pwd)
-      puts local_dir
-      puts($SYNC_COMMAND + ' . ' + @conf['protocol'] + '://' + @conf['server'] + '/' + @conf['remote_dir'] + '/' + local_dir)
+      local_dir = File.basename(Dir.pwd)  
+      puts($SYNC_COMMAND + ' . ' + @conf['protocol'] + '://' + @conf['server'] + '/' + @conf['remote_dir'] + '/' + local_dir) if $ZUP_DEBUG
       system($SYNC_COMMAND + ' . ' + @conf['protocol'] + '://' + @conf['server'] + '/' + @conf['remote_dir'] + '/' + local_dir)
     else
       puts " * Current directory not initialised (Run 'zup init' to add it)"
