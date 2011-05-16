@@ -10,7 +10,6 @@
 #
 
 require 'fileutils'
-require 'getoptlong'
 
 # Main user config file:
 $CONFIG_FILE=ENV['HOME'] + '/.zup.conf'
@@ -148,14 +147,21 @@ class Zup
   def sync_zup_dir
     if zup_dir_enabled?
       local_dir = File.basename(Dir.pwd)  
-      puts($SYNC_COMMAND + ' . ' + @conf['protocol'] + '://' + @conf['server'] + '/' + @conf['remote_dir'] + '/' + local_dir) if $ZUP_DEBUG
-      system($SYNC_COMMAND + ' . ' + @conf['protocol'] + '://' + @conf['server'] + '/' + @conf['remote_dir'] + '/' + local_dir)
+
+      # Output the full unison command if debugging enabled
+      puts($SYNC_COMMAND + ' . ' + @conf['protocol'] + '://' \
+        + @conf['server'] + '/' + @conf['remote_dir'] + '/' \
+        + local_dir) if $ZUP_DEBUG
+
+      # Run unison
+      system($SYNC_COMMAND + ' . ' + @conf['protocol'] + '://' \
+        + @conf['server'] + '/' + @conf['remote_dir'] + '/' \
+        + local_dir)
     else
       puts " * Current directory not initialised (Run 'zup init' to add it)"
       exit 0
     end
   end
-
 end
 
 zup = Zup.new
