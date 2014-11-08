@@ -41,7 +41,7 @@ class Zup
       output_help
       exit 0
     end
-  
+
     # Check that config file exists
     unless File.exist?($CONFIG_FILE)
       puts "Config file " + $CONFIG_FILE + " does not exist!\n\n"
@@ -50,7 +50,7 @@ class Zup
       puts "remote_dir=[remote directory to sync with]"
       exit 0
     end
-    
+
     # Import configuration from ~/.zup.conf
     # Set some defaults
     @conf = { 'port' => '22', 'protocol' => 'ssh', 'batch' => 'no' }
@@ -69,14 +69,14 @@ class Zup
         end
       end
     end
-    
+
     # Enable unison's batch mode
     # See http://www.cis.upenn.edu/~bcpierce/unison/download/releases/stable/unison-manual.html
     # for full details
     if @conf['batch'] == 'yes'
       $SYNC_COMMAND = $SYNC_COMMAND + ' -batch'
     end
-    
+
     case ARGV[0]
       when 'help'
         output_help
@@ -88,7 +88,7 @@ class Zup
         sync_zup_dir
       when 'uninit'
         disable_zup_dir
-    end  
+    end
   end
 
   # Output the config settings
