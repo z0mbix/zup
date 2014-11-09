@@ -2,7 +2,7 @@ branches:
   only:
     - master
 before_install:
-  - sudo gem install fpm --no-ri --no-rdoc
+  - gem install fpm --no-ri --no-rdoc
 rvm:
   - "1.9.3"
 script: "./build.sh"
