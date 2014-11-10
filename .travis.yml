@@ -1,8 +1,17 @@
 branches:
   only:
-    - master
+  - master
 before_install:
-  - gem install fpm --no-ri --no-rdoc
+- gem install fpm --no-ri --no-rdoc
 rvm:
-  - "1.9.3"
-script: "./build.sh"
+- 1.9.3
+script: ./build.sh
+addons:
+  artifacts:
+    key:
+      secure: IkP9nsNGFdNOho7v7wyIw3bEMYSbosRn5/r/90q1DM8tyBrT+WD4ZhZKUzJwj/imC5mONT3b/n4bFIBfIa66lGkpd2sRdHFdyveaSk1sDk7R6IBU9g5Fqz+7WTKLyCtfgj+iQ6sJwQ/DV+r6nsNO8XmdlIRGFfJ/Bi0CuWoHUTo=
+    secret:
+      secure: uXuMMV5eXrD5cDIMx10pKnAgUtBMuk3Z2RVRJydyUJR5T1Que8N9Jd3vQFPpfdZv6XNsCU5hR5StoLLh4LqrK4V/K5vRXhIBsXyMdFHSEvUd8QZume9ICzycVMO4N0BSw5Y7Qdq6+n34G5u6GbwqseIIgJp1RZ8e42peaHbQDgQ=
+    bucket: zombix-packages
+    paths:
+      - $(ls zup*.deb | tr "\n" ":")
