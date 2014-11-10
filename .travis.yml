@@ -13,5 +13,7 @@ addons:
     secret:
       secure: uXuMMV5eXrD5cDIMx10pKnAgUtBMuk3Z2RVRJydyUJR5T1Que8N9Jd3vQFPpfdZv6XNsCU5hR5StoLLh4LqrK4V/K5vRXhIBsXyMdFHSEvUd8QZume9ICzycVMO4N0BSw5Y7Qdq6+n34G5u6GbwqseIIgJp1RZ8e42peaHbQDgQ=
     bucket: zombix-packages
+    region: eu-west-1
+    endpoint: https://s3-eu-west-1.amazonaws.com
     paths:
       - $(ls zup*.deb | tr "\n" ":")
