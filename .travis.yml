@@ -2,7 +2,7 @@ branches:
   only:
   - master
 before_install:
-  - apt-get install rpm
+  - sudo apt-get install rpm
   - gem install fpm --no-ri --no-rdoc
 rvm:
 - 1.9.3
