@@ -9,6 +9,7 @@ script: ./build.sh
 deploy:
   provider: s3
   skip_cleanup: true
+  local-dir: build
   access_key_id: AKIAICH2OVWQEFJPBDEQ
   secret_access_key:
     secure: dd/MAVwhILD5nl8VUxd1o0yprdCAoOmZ1Gybr2rfJ1uDcQ2kMpr5u5rPVdmowI0G3/kp2rBYHNgmt79MfHPP5WlK2lyz4w/vtD3jxInbWTvGvu5ihFfr5WYTM0izCizC+fTpzW84BzfkEhD4wBV0AXH2tzzoqN6BxLqLpPeX8yo=

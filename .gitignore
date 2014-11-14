@@ -1,2 +1,3 @@
 .zup/*
 *.tar.gz
+build/*
